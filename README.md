@@ -1,53 +1,3 @@
-#Pending Work:
-### Performance enhancements:
-    1. Currently, getPaths is taking ~38 ms to response. It could be reduced to less then 10 ms.
-        1.1. PathSearchServiceImpl is calculating shortestPath via Time, Distance in serialized order. 
-             If we concurrently calculate it, it will improve our API response time by factor of half (i.e. less then 20ms)
-        1.2. We will replace PriorityQueue with Treeset for Dijkstra shortest path search. 
-             It will further improve our API response time by factor of half (i.e. from 20 ms to less then 12ms)
-        1.3. Response generation is taking 1 ms, should be optimized.
-### Technical enhancements: 
-    1. Provide logback.xml with proper logging facilities.
-    2. Dockerize the application.
-    3. Migrate from CSV data source to actual data-source.
-    4. Move configuration to DB, so that config could be updated real time via Admin APIs.
-    5. Add performance tracing metrics.
-
-### Business enhancements:
-Update travel time calculation logic, based on station number. Missing station numbers should also be added to travel time.
-###### Current Implementation:
-```
-EW01 --> EW02 --> EW05 --> EW06
-```
-Considering all travel between station is 10 minutes.
-
-TravelTime from EW01 to EW06 = 30 minutes 
-    
-1. EW01 -> EW02 (10 minutes)
-2. EW02 -> EW05 (10 minutes)
-3. EW05 -> EW06 (10 minutes) 
-
-###### New Implementation:
-```
-EW01 --> EW02 --> EW05 --> EW06
-```
-Considering all travel between station is 10 minutes.
-
-TravelTime from EW01 to EW06 = 50 minutes
-
-1. EW01 -> EW02 (10 minutes)
-
-
-2. EW02 -> EW05 (30 minutes) 
-   
-   (EW02 --10Min--> EW03 + EW03 --10Min--> EW04 + EW04 --10Min--> EW05)
-
-    Even if Station EW03, EW04 do not exist. They will come up in the future.
-
-
-3. EW05 -> EW06 (10 minutes)
-
-
 # Problem Statement
 We want to build a routing service, to help users find routes from source to any destination on network based on some efficiency heuristic. We would be using Singapore's urban rail system as example.
 
@@ -447,3 +397,55 @@ Take EW line from City Hall to Bugis [ TimeOfVisit: 2021-06-07T23:35, Travelled 
 
     Path to application file would be something like: 
     /Users/<YOUR_SYSTEM_PATH_HERE>/SubwayTransition/src/main/resources
+    
+    
+#Pending Work:
+### Performance enhancements:
+    1. Currently, getPaths is taking ~38 ms to response. It could be reduced to less then 10 ms.
+        1.1. PathSearchServiceImpl is calculating shortestPath via Time, Distance in serialized order. 
+             If we concurrently calculate it, it will improve our API response time by factor of half (i.e. less then 20ms)
+        1.2. We will replace PriorityQueue with Treeset for Dijkstra shortest path search. 
+             It will further improve our API response time by factor of half (i.e. from 20 ms to less then 12ms)
+        1.3. Response generation is taking 1 ms, should be optimized.
+### Technical enhancements: 
+    1. Provide logback.xml with proper logging facilities.
+    2. Dockerize the application.
+    3. Migrate from CSV data source to actual data-source.
+    4. Move configuration to DB, so that config could be updated real time via Admin APIs.
+    5. Add performance tracing metrics.
+
+### Business enhancements:
+Update travel time calculation logic, based on station number. Missing station numbers should also be added to travel time.
+###### Current Implementation:
+```
+EW01 --> EW02 --> EW05 --> EW06
+```
+Considering all travel between station is 10 minutes.
+
+TravelTime from EW01 to EW06 = 30 minutes 
+    
+1. EW01 -> EW02 (10 minutes)
+2. EW02 -> EW05 (10 minutes)
+3. EW05 -> EW06 (10 minutes) 
+
+###### New Implementation:
+```
+EW01 --> EW02 --> EW05 --> EW06
+```
+Considering all travel between station is 10 minutes.
+
+TravelTime from EW01 to EW06 = 50 minutes
+
+1. EW01 -> EW02 (10 minutes)
+
+
+2. EW02 -> EW05 (30 minutes) 
+   
+   (EW02 --10Min--> EW03 + EW03 --10Min--> EW04 + EW04 --10Min--> EW05)
+
+    Even if Station EW03, EW04 do not exist. They will come up in the future.
+
+
+3. EW05 -> EW06 (10 minutes)
+
+    
