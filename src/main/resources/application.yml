@@ -1,0 +1,106 @@
+server:
+  port: 9090
+
+---
+lineconfig:
+  lineLevelConfigs:
+    - lineCode: 'NS'
+      timeBasedLineConfigs:
+        - timeType: 'DEFAULT_AVAILABLE_HOURS'
+          expression: '["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"].contains(travelDay)'
+          exchangeWaitTime: 10
+          travelTimeBetweenStation: 10
+        - timeType: 'PEAK_HOURS'
+          expression: '["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY"].contains(travelDay) && (("06:00" <= startTime && "08:59" >= startTime) || ("18:00" <= startTime && "20:59" >= startTime))'
+          exchangeWaitTime: 15
+          travelTimeBetweenStation: 12
+        - timeType: 'NIGHT_HOURS'
+          expression: '("22:00" <= startTime && "23:59" >= startTime) || "05:59" >= startTime'
+          exchangeWaitTime: 10
+          travelTimeBetweenStation: 10
+    - lineCode: 'EW'
+      timeBasedLineConfigs:
+        - timeType: 'DEFAULT_AVAILABLE_HOURS'
+          expression: '["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"].contains(travelDay)'
+          exchangeWaitTime: 10
+          travelTimeBetweenStation: 10
+        - timeType: 'PEAK_HOURS'
+          expression: '["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY"].contains(travelDay) && (("06:00" <= startTime && "08:59" >= startTime) || ("18:00" <= startTime && "20:59" >= startTime))'
+          exchangeWaitTime: 15
+          travelTimeBetweenStation: 10
+        - timeType: 'NIGHT_HOURS'
+          expression: '("22:00" <= startTime && "23:59" >= startTime) || "05:59" >= startTime'
+          exchangeWaitTime: 10
+          travelTimeBetweenStation: 10
+    - lineCode: 'CG'
+      timeBasedLineConfigs:
+        - timeType: 'DEFAULT_AVAILABLE_HOURS'
+          expression: '["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"].contains(travelDay) && ("06:00" <= startTime && "21:59" >= startTime)'
+          exchangeWaitTime: 10
+          travelTimeBetweenStation: 10
+        - timeType: 'PEAK_HOURS'
+          expression: '["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY"].contains(travelDay) && (("06:00" <= startTime && "08:59" >= startTime) || ("18:00" <= startTime && "20:59" >= startTime))'
+          exchangeWaitTime: 15
+          travelTimeBetweenStation: 10
+    - lineCode: 'NE'
+      timeBasedLineConfigs:
+        - timeType: 'DEFAULT_AVAILABLE_HOURS'
+          expression: '["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"].contains(travelDay)'
+          exchangeWaitTime: 10
+          travelTimeBetweenStation: 10
+        - timeType: 'PEAK_HOURS'
+          expression: '["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY"].contains(travelDay) && (("06:00" <= startTime && "08:59" >= startTime) || ("18:00" <= startTime && "20:59" >= startTime))'
+          exchangeWaitTime: 15
+          travelTimeBetweenStation: 12
+        - timeType: 'NIGHT_HOURS'
+          expression: '("22:00" <= startTime && "23:59" >= startTime) || "05:59" >= startTime'
+          exchangeWaitTime: 10
+          travelTimeBetweenStation: 10
+    - lineCode: 'CC'
+      timeBasedLineConfigs:
+        - timeType: 'DEFAULT_AVAILABLE_HOURS'
+          expression: '["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"].contains(travelDay)'
+          exchangeWaitTime: 10
+          travelTimeBetweenStation: 10
+        - timeType: 'PEAK_HOURS'
+          expression: '["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY"].contains(travelDay) && (("06:00" <= startTime && "08:59" >= startTime) || ("18:00" <= startTime && "20:59" >= startTime))'
+          exchangeWaitTime: 15
+          travelTimeBetweenStation: 10
+        - timeType: 'NIGHT_HOURS'
+          expression: '("22:00" <= startTime && "23:59" >= startTime) || "05:59" >= startTime'
+          exchangeWaitTime: 10
+          travelTimeBetweenStation: 10
+    - lineCode: 'CE'
+      timeBasedLineConfigs:
+        - timeType: 'DEFAULT_AVAILABLE_HOURS'
+          expression: '["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"].contains(travelDay) && ("06:00" <= startTime && "21:59" >= startTime)'
+          exchangeWaitTime: 10
+          travelTimeBetweenStation: 10
+        - timeType: 'PEAK_HOURS'
+          expression: '["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY"].contains(travelDay) && (("06:00" <= startTime && "08:59" >= startTime) || ("18:00" <= startTime && "20:59" >= startTime))'
+          exchangeWaitTime: 15
+          travelTimeBetweenStation: 10
+    - lineCode: 'DT'
+      timeBasedLineConfigs:
+        - timeType: 'DEFAULT_AVAILABLE_HOURS'
+          expression: '["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"].contains(travelDay) && ("06:00" <= startTime && "21:59" >= startTime)'
+          exchangeWaitTime: 10
+          travelTimeBetweenStation: 8
+        - timeType: 'PEAK_HOURS'
+          expression: '["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY"].contains(travelDay) && (("06:00" <= startTime && "08:59" >= startTime) || ("18:00" <= startTime && "20:59" >= startTime))'
+          exchangeWaitTime: 15
+          travelTimeBetweenStation: 10
+    - lineCode: 'TE'
+      timeBasedLineConfigs:
+        - timeType: 'DEFAULT_AVAILABLE_HOURS'
+          expression: '["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"].contains(travelDay)'
+          exchangeWaitTime: 10
+          travelTimeBetweenStation: 8
+        - timeType: 'PEAK_HOURS'
+          expression: '["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY"].contains(travelDay) && (("06:00" <= startTime && "08:59" >= startTime) || ("18:00" <= startTime && "20:59" >= startTime))'
+          exchangeWaitTime: 15
+          travelTimeBetweenStation: 10
+        - timeType: 'NIGHT_HOURS'
+          expression: '("22:00" <= startTime && "23:59" >= startTime) || "05:59" >= startTime'
+          exchangeWaitTime: 10
+          travelTimeBetweenStation: 8
