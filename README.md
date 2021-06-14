@@ -1,3 +1,5 @@
+### NOTE: This solution uses Rule Engine. Make sure added rules have correct syntax in application.yml. All calculations happens via Rule defined in application.yml. Rules should be defined for each lines (CC, DT, etc) of Subway.
+
 # Problem Statement
 We want to build a routing service, to help users find routes from source to any destination on network based on some efficiency heuristic. We would be using Singapore's urban rail system as example.
 
