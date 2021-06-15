@@ -52,6 +52,8 @@ To account for these constraints, application will expose method that accepts a 
 
 
 # Implementation understandings:
+We have solved the problem using Dijkstra's algorithm using PriorityQueue. For time calculation and decision making we have used rule engine. All Rules have been defined in application.yml. All line codes should have corresponding rules in application.yml. 
+
 1. Node in between has a future opening date.
     ```
     Consider DT line to: A --> B --> C --> D, 
@@ -349,6 +351,8 @@ Take EW line from City Hall to Bugis [ TimeOfVisit: 2021-06-07T23:35, Travelled 
 3. If station is interchanging station, station name will still be same on all lines.
 4. In case we have multiple optimized path (with same complexity), we would return any one of the optimized path.
 5. Two station / node could only have one connecting line. 
+6. Each Station Line would have its corresponding rules to calculate travel-time and stop-time in application.yml.
+
 
 # How to start the application?
 ###Notes:
@@ -402,7 +406,10 @@ Take EW line from City Hall to Bugis [ TimeOfVisit: 2021-06-07T23:35, Travelled 
     /Users/<YOUR_SYSTEM_PATH_HERE>/SubwayTransition/src/main/resources
     
     
+
+
 #Pending Work:
+
 ### Performance enhancements:
     1. Currently, getPaths is taking ~38 ms to response. It could be reduced to less then 10 ms.
         1.1. PathSearchServiceImpl is calculating shortestPath via Time, Distance in serialized order. 
