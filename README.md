@@ -451,7 +451,12 @@ TravelTime from EW01 to EW06 = 50 minutes
 
 2. EW02 -> EW05 (30 minutes) 
    
-   (EW02 --10Min--> EW03 + EW03 --10Min--> EW04 + EW04 --10Min--> EW05)
+   (
+   Explanation:
+    EW02 --> EW03  10 minutes
+    EW03 --> EW04  10 Minutes
+    EW04 --> EW05  10 Minutes
+   )
 
     Even if Station EW03, EW04 do not exist. They will come up in the future.
 
