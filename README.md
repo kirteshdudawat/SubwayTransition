@@ -51,6 +51,18 @@ Every train line change adds 10 minutes of waiting time to the journey
 To account for these constraints, application will expose method that accepts a source, destination and start time ("YYYY-MM-DDThh:mm" format, e.g. '2019-01-31T16:00') and returns one or more routes ordered by an efficiency heuristic with clear steps involved, as well as the total travel time for each route generated. If no route is available between the selected stations, this will also be communicated clearly.
 
 
+
+# Assumptions:
+1. StationList provided in excel would always have date in `d MMMM yyyy` format.
+2. Station code would be unique for each station for a line. If station is interchanging station, then it should have separate station code corresponding to each line. 
+3. If station is interchanging station, station name will still be same on all lines.
+4. In case we have multiple optimized path (with same complexity), we would return any one of the optimized path.
+5. Two station / node could only have one connecting line. 
+6. Each Station Line would have its corresponding rules to calculate travel-time and stop-time in application.yml.
+
+
+
+
 # Implementation understandings:
 We have solved the problem using Dijkstra's algorithm using PriorityQueue. For time calculation and decision making we have used rule engine. All Rules have been defined in application.yml. All line codes should have corresponding rules in application.yml. 
 
@@ -345,67 +357,7 @@ Take EW line from Raffles Place to City Hall [ TimeOfVisit: 2021-06-07T23:25, Tr
 Take EW line from City Hall to Bugis [ TimeOfVisit: 2021-06-07T23:35, Travelled stations so far: 10, JourneyTime in Minutes: 110 ]
 ```
 
-# Assumptions:
-1. StationList provided in excel would always have date in `d MMMM yyyy` format.
-2. Station code would be unique for each station for a line. If station is interchanging station, then it should have separate station code corresponding to each line. 
-3. If station is interchanging station, station name will still be same on all lines.
-4. In case we have multiple optimized path (with same complexity), we would return any one of the optimized path.
-5. Two station / node could only have one connecting line. 
-6. Each Station Line would have its corresponding rules to calculate travel-time and stop-time in application.yml.
 
-
-# How to start the application?
-###Notes:
-1. Instructions / guidelines mentioned below is as per Mac OS. Steps should be executable on other OS, but syntax may differ.
-2. Default application port is 9090.
-
-### 1. Using Terminal
-    1.1. Prerequisites:
-         Make sure you have following sofware /tools installed on your system:
-            1.1.1. Java JDK (Recommended version: JDK 11.0.11)
-            1.1.2. Maven (Recommended version: 3.8.1)
-
-    1.2. Go to project directory/workspace. Project directory path would be something like: 
-    `/Users/<YOUR_SYSTEM_PATH_HERE>/SubwayTransition`
-
-    1.3. In the project directory, execute following commands:
-        1.3.1. `mvn clean compile`
-        1.3.2. `mvn package`
-
-    1.4. To run the project use command in same directory / workspace:
-        1.4.1. `java -jar target/SubwayTransition-0.0.1-SNAPSHOT.jar`
-
-    1.5. To verify application has successfully started, 
-        1.5.1. Open browser, and go to `http://localhost:9090/healthCheck`
-               OR use CURL via terminal: `curl -i -H "Accept: application/json" -H "Content-Type: application/json" -X GET http://localhost:9090/healthCheck` 
-        1.5.2. You should see response as `{"success":true,"body":"healthCheck successful.","errors":null}`
-
-### 2. Using IntelliJ IDEA
-    2.1. Prerequisites:
-         Make sure you have IntelliJ to import / open maven based Spring-Boot web projects.
-         Make sure you have JDK and Maven plugins installed or you could manually install JDF and Maven.   
-
-    2.2. Once you import the project in IntelliJ, follow the below mentioned steps:
-        2.2.1. Go to SubwayTransitionApplication.java file, and Run SubwayTransitionApplication class. 
-               (SubwayTransitionApplication is entry point for application)
-
-    2.3. To verify application has successfully started, 
-        2.3.1. Open browser, and go to `http://localhost:9090/healthCheck`
-               OR use CURL via terminal: `curl -i -H "Accept: application/json" -H "Content-Type: application/json" -X GET http://localhost:9090/healthCheck` 
-        2.3.2. You should see response as `{"success":true,"body":"healthCheck successful.","errors":null}`
-
-# How to run test?
-   Use command `mvn test` in terminal to run all test cases.
-
-# Trouble-shooting:
-
-## Port 9090 already in use, how to change port?
-    In application.properties file change config server.port to an open port. 
-
-    Path to application file would be something like: 
-    /Users/<YOUR_SYSTEM_PATH_HERE>/SubwayTransition/src/main/resources
-    
-    
 
 
 #Pending Work:
@@ -463,4 +415,58 @@ TravelTime from EW01 to EW06 = 50 minutes
 
 3. EW05 -> EW06 (10 minutes)
 
+
+
+
+
+# How to start the application?
+###Notes:
+1. Instructions / guidelines mentioned below is as per Mac OS. Steps should be executable on other OS, but syntax may differ.
+2. Default application port is 9090.
+
+### 1. Using Terminal
+    1.1. Prerequisites:
+         Make sure you have following sofware /tools installed on your system:
+            1.1.1. Java JDK (Recommended version: JDK 11.0.11)
+            1.1.2. Maven (Recommended version: 3.8.1)
+
+    1.2. Go to project directory/workspace. Project directory path would be something like: 
+    `/Users/<YOUR_SYSTEM_PATH_HERE>/SubwayTransition`
+
+    1.3. In the project directory, execute following commands:
+        1.3.1. `mvn clean compile`
+        1.3.2. `mvn package`
+
+    1.4. To run the project use command in same directory / workspace:
+        1.4.1. `java -jar target/SubwayTransition-0.0.1-SNAPSHOT.jar`
+
+    1.5. To verify application has successfully started, 
+        1.5.1. Open browser, and go to `http://localhost:9090/healthCheck`
+               OR use CURL via terminal: `curl -i -H "Accept: application/json" -H "Content-Type: application/json" -X GET http://localhost:9090/healthCheck` 
+        1.5.2. You should see response as `{"success":true,"body":"healthCheck successful.","errors":null}`
+
+### 2. Using IntelliJ IDEA
+    2.1. Prerequisites:
+         Make sure you have IntelliJ to import / open maven based Spring-Boot web projects.
+         Make sure you have JDK and Maven plugins installed or you could manually install JDF and Maven.   
+
+    2.2. Once you import the project in IntelliJ, follow the below mentioned steps:
+        2.2.1. Go to SubwayTransitionApplication.java file, and Run SubwayTransitionApplication class. 
+               (SubwayTransitionApplication is entry point for application)
+
+    2.3. To verify application has successfully started, 
+        2.3.1. Open browser, and go to `http://localhost:9090/healthCheck`
+               OR use CURL via terminal: `curl -i -H "Accept: application/json" -H "Content-Type: application/json" -X GET http://localhost:9090/healthCheck` 
+        2.3.2. You should see response as `{"success":true,"body":"healthCheck successful.","errors":null}`
+
+# How to run test?
+   Use command `mvn test` in terminal to run all test cases.
+
+# Trouble-shooting:
+
+## Port 9090 already in use, how to change port?
+    In application.properties file change config server.port to an open port. 
+
+    Path to application file would be something like: 
+    /Users/<YOUR_SYSTEM_PATH_HERE>/SubwayTransition/src/main/resources
     
