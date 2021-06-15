@@ -55,7 +55,7 @@ To account for these constraints, application will expose method that accepts a 
 # Assumptions:
 1. StationList provided in excel would always have date in `d MMMM yyyy` format.
 2. Station code would be unique for each station for a line. If station is interchanging station, then it should have separate station code corresponding to each line. 
-3. If station is interchanging station, station name will still be same on all lines.
+3. If station is interchanging station, station name will still be same on all lines (Case Sensitive).
 4. In case we have multiple optimized path (with same complexity), we would return any one of the optimized path.
 5. Two station / node could only have one connecting line. 
 6. Each Station Line would have its corresponding rules to calculate travel-time and stop-time in application.yml.
