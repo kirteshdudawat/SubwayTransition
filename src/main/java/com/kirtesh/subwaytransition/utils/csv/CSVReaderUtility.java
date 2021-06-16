@@ -20,9 +20,7 @@ public class CSVReaderUtility {
      * @throws Exception for cases such as no file exist, invalid entity used to fetch data etc.
      */
     public static <T> List readCsvFile(String fileName, Class<T> type) throws Exception {
-        File file = ResourceUtils.getFile(String.format("classpath:%s",fileName));
-
-        try(InputStream inputStream = new FileInputStream(file)) {
+        try(InputStream inputStream = CSVReaderUtility.class.getResourceAsStream(String.format("/%s",fileName))) {
             try(InputStreamReader isr = new InputStreamReader(inputStream)) {
                 try(BufferedReader reader = new BufferedReader(isr)) {
                     CsvToBean<T> csvToBean = new CsvToBeanBuilder(reader)
