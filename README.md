@@ -1,3 +1,6 @@
+### NOTE:
+This solution uses Rule Engine. Make sure if you add / update rules in application.yml, it should be in correct syntax. All calculations happens via Rule defined in application.yml. Rules should be defined for each lines (CC, DT, etc) of Subway.
+
 # Problem Statement
 We want to build a routing service, to help users find routes from source to any destination on network based on some efficiency heuristic. We would be using Singapore's urban rail system as example.
 
@@ -48,25 +51,39 @@ Every train line change adds 10 minutes of waiting time to the journey
 To account for these constraints, application will expose method that accepts a source, destination and start time ("YYYY-MM-DDThh:mm" format, e.g. '2019-01-31T16:00') and returns one or more routes ordered by an efficiency heuristic with clear steps involved, as well as the total travel time for each route generated. If no route is available between the selected stations, this will also be communicated clearly.
 
 
+
+# Assumptions:
+1. StationList provided in excel would always have date in `d MMMM yyyy` format.
+2. Station code would be unique for each station for a line. If station is interchanging station, then it should have separate station code corresponding to each line.
+3. If station is interchanging station, station name will still be same on all lines (Case Sensitive).
+4. In case we have multiple optimized path (with same complexity), we would return any one of the optimized path.
+5. Two station / node could only have one connecting line.
+6. Each Station Line would have its corresponding rules to calculate travel-time and stop-time in application.yml.
+
+
+
+
 # Implementation understandings:
+We have solved the problem using Dijkstra's algorithm using PriorityQueue. For time calculation and decision making we have used rule engine. All Rules have been defined in application.yml. All line codes should have corresponding rules in application.yml.
+
 1. Node in between has a future opening date.
     ```
     Consider DT line to: A --> B --> C --> D, 
     where A,B,C,D are nodes with C having opening date on Jan 01, 2100.
     Consider train takes 10 minutes per stop.
     ```
-   ######Case I: 
-    Travel Path for user U1 from A to D, at Dec 31, 2099 23:55 Hrs should be 
-    
-    1. A (Dec 31, 2099 23:55) -> B (Jan 01, 2100 00:05)
-    2. B (Jan 01, 2100 00:05) -> C (Jan 01, 2100 00:15) as C is open while user is on node B on Jan 01, 00:05.
-    3. C (Jan 01, 2100 00:15) -> D (Jan 01, 2100 00:25). 
+   ######Case I:
+   Travel Path for user U1 from A to D, at Dec 31, 2099 23:55 Hrs should be
+
+   1. A (Dec 31, 2099 23:55) -> B (Jan 01, 2100 00:05)
+   2. B (Jan 01, 2100 00:05) -> C (Jan 01, 2100 00:15) as C is open while user is on node B on Jan 01, 00:05.
+   3. C (Jan 01, 2100 00:15) -> D (Jan 01, 2100 00:25).
 
    ######Case II:
-    Travel Path for user U2 from A to D, at Dec 31, 2099 23:30 Hrs should be
-    
-    1. A (Dec 31, 2099 23:30) -> B (Dec 31, 2099 23:40)
-    2. B (Dec 31, 2099 23:40) -> D (Dec 31, 2099 23:50) as C is closed while user is on node B on Dec 31, 23:40.
+   Travel Path for user U2 from A to D, at Dec 31, 2099 23:30 Hrs should be
+
+   1. A (Dec 31, 2099 23:30) -> B (Dec 31, 2099 23:40)
+   2. B (Dec 31, 2099 23:40) -> D (Dec 31, 2099 23:50) as C is closed while user is on node B on Dec 31, 23:40.
 
    ######Case III:
    Travel Path for user U1 from A to D, at Dec 31, 2099 23:45 Hrs should be
@@ -75,7 +92,7 @@ To account for these constraints, application will expose method that accepts a 
    2. B (Dec 31, 2099 23:55) -> D (Jan 01, 2100 00:05) as C is closed while user is on node B on Dec 31, 23:55.
 
 
-2. Travel time calculation during Peak / Night hour: 
+2. Travel time calculation during Peak / Night hour:
     ```
     Consider DT line to: A --> B --> C --> D --> E, 
     where A,B,C,D are nodes. All nodes are operational.
@@ -83,22 +100,22 @@ To account for these constraints, application will expose method that accepts a 
     Train takes 15 minutes per stop during peak hours.
     Peak hour for DT line from 18:00 hrs to 18:30 hrs
     ```
-   ######Normal Case: 
-    Travel Path for user U1 from A to E, at Jan 01, 2021 12:55 Hrs should be 
-    
-    1. A (Jan 01, 2021 12:55) -> B (Jan 01, 2021 13:05)
-    2. B (Jan 01, 2021 13:05) -> C (Jan 01, 2021 13:15)
-    3. C (Jan 01, 2021 13:15) -> D (Jan 01, 2021 13:25)
-    4. D (Jan 01, 2021 13:25) -> E (Jan 01, 2021 13:35)
-    ###### Total Travel Time in Normal Case -> 40 minutes
+   ######Normal Case:
+   Travel Path for user U1 from A to E, at Jan 01, 2021 12:55 Hrs should be
+
+   1. A (Jan 01, 2021 12:55) -> B (Jan 01, 2021 13:05)
+   2. B (Jan 01, 2021 13:05) -> C (Jan 01, 2021 13:15)
+   3. C (Jan 01, 2021 13:15) -> D (Jan 01, 2021 13:25)
+   4. D (Jan 01, 2021 13:25) -> E (Jan 01, 2021 13:35)
+   ###### Total Travel Time in Normal Case -> 40 minutes
 
    ######Hybrid Case:
-    Travel Path for user U2 from A to E, Jan 01, 2021 17:55 Hrs should be
+   Travel Path for user U2 from A to E, Jan 01, 2021 17:55 Hrs should be
 
-    1. A (Jan 01, 2021 17:55) -> B (Jan 01, 2021 18:05) (Travel time between A and B is 10 min, as user starts from A to B on 17:55 which is non-peak hours.)
-    2. B (Jan 01, 2021 18:05) -> C (Jan 01, 2021 18:20) (Travel time between B and C is 15 min, as user starts from B to C at 18:05 which is peak hours.)
-    3. C (Jan 01, 2021 18:20) -> D (Jan 01, 2021 18:35) (Travel time between C and D is 15 min, as user starts from C to D at 18:20 which is peak hours.)
-    4. D (Jan 01, 2021 18:35) -> E (Jan 01, 2021 18:45) (Travel time between D and E is 10 min, as user starts from D to E at 18:35 which is non-peak hours.)
+   1. A (Jan 01, 2021 17:55) -> B (Jan 01, 2021 18:05) (Travel time between A and B is 10 min, as user starts from A to B on 17:55 which is non-peak hours.)
+   2. B (Jan 01, 2021 18:05) -> C (Jan 01, 2021 18:20) (Travel time between B and C is 15 min, as user starts from B to C at 18:05 which is peak hours.)
+   3. C (Jan 01, 2021 18:20) -> D (Jan 01, 2021 18:35) (Travel time between C and D is 15 min, as user starts from C to D at 18:20 which is peak hours.)
+   4. D (Jan 01, 2021 18:35) -> E (Jan 01, 2021 18:45) (Travel time between D and E is 10 min, as user starts from D to E at 18:35 which is non-peak hours.)
    ###### Total Travel Time in Hybrid Case -> 50 minutes
 
 3. Peak / Night hour calculation with LineChange case, consider the following case:
@@ -117,28 +134,28 @@ To account for these constraints, application will expose method that accepts a 
    
     All lines have peak-hour of 18:00 to 18:30.
     ```
-    Travel Path for user U3 from A to Z, Jan 01, 2021 17:45 Hrs should be
+   Travel Path for user U3 from A to Z, Jan 01, 2021 17:45 Hrs should be
 
-    1. On DT line, A (Jan 01, 2021 17:45) -> B (Jan 01, 2021 17:53) 
-       
-       (Travel time between A and B is 8 min, as user starts from A to B on 17:45 which is non-peak hours on DT line.)
-    2. Change line from DT to SW 
-       
-       (Wait time from Jan 01, 2021 17:53 to Jan 01, 2021 18:04) 
-       
-       (Line change wait time at SW is 11 min, as user changes line to SW on 17:53 which is non-peak hours.)
-    3. On SW line, B (Jan 01, 2021 18:04) -> Q (Jan 01, 2021 18:17) 
-       
-       (Travel time between B and Q on SW line is 13 min, as user starts from B on SW line to Q at 18:04 which is peak hours.)
-    4. Change line SW to DC.
-       
-       (Wait time from Jan 01, 2021 18:17 to Jan 01, 2021 18:38)
-       
-       (Line change wait time at DC is 21 min, as user changes line to DC on 18:17 which is peak hours.)
-    5. On DC line, Q (Jan 01, 2021 18:38) -> Z (Jan 01, 2021 18:39) 
+   1. On DT line, A (Jan 01, 2021 17:45) -> B (Jan 01, 2021 17:53)
 
-       (Travel time between Q and Z on DC line is 1 min, as user starts from Q on DC line to Z at 18:38 which is non-peak hours.)
-    ###### Total Travel Time -> 54 minutes
+      (Travel time between A and B is 8 min, as user starts from A to B on 17:45 which is non-peak hours on DT line.)
+   2. Change line from DT to SW
+
+      (Wait time from Jan 01, 2021 17:53 to Jan 01, 2021 18:04)
+
+      (Line change wait time at SW is 11 min, as user changes line to SW on 17:53 which is non-peak hours.)
+   3. On SW line, B (Jan 01, 2021 18:04) -> Q (Jan 01, 2021 18:17)
+
+      (Travel time between B and Q on SW line is 13 min, as user starts from B on SW line to Q at 18:04 which is peak hours.)
+   4. Change line SW to DC.
+
+      (Wait time from Jan 01, 2021 18:17 to Jan 01, 2021 18:38)
+
+      (Line change wait time at DC is 21 min, as user changes line to DC on 18:17 which is peak hours.)
+   5. On DC line, Q (Jan 01, 2021 18:38) -> Z (Jan 01, 2021 18:39)
+
+      (Travel time between Q and Z on DC line is 1 min, as user starts from Q on DC line to Z at 18:38 which is non-peak hours.)
+   ###### Total Travel Time -> 54 minutes
 
 
 4. Total Nodes travelled count logic.
@@ -147,16 +164,16 @@ To account for these constraints, application will expose method that accepts a 
     where A,B,C,D are nodes with all nodes open.
     Consider train takes 10 minutes per stop.
     ```
-    ######Number of nodes travelled by user U1 from A to D, at Jan 01, 2021 12:55 Hrs
+   ######Number of nodes travelled by user U1 from A to D, at Jan 01, 2021 12:55 Hrs
 
-    1. A (Jan 01, 2021 12:55) -> B (Jan 01, 2121 13:05) [Total Nodes travelled = 1 (B)] [10 minutes]
-    2. B (Jan 01, 2021 13:05) -> C (Jan 01, 2121 13:15) [Total Nodes travelled = 2 (B, C)] [10 minutes]
-    3. C (Jan 01, 2021 13:15) -> D (Jan 01, 2021 13:25) [Total Nodes travelled = 3 (B, C, D)] [10 minutes]
-    ##### In above example, even if user started at Node A, but actual node he travelled is 3 (B, C, D).
-    ###### Hence, 
-    ######  1. Path Travelled: A -> B -> C -> D
-    ######  2. Total Node in Path: 3
-    ######  3. Total travel time in minutes: 30
+   1. A (Jan 01, 2021 12:55) -> B (Jan 01, 2121 13:05) [Total Nodes travelled = 1 (B)] [10 minutes]
+   2. B (Jan 01, 2021 13:05) -> C (Jan 01, 2121 13:15) [Total Nodes travelled = 2 (B, C)] [10 minutes]
+   3. C (Jan 01, 2021 13:15) -> D (Jan 01, 2021 13:25) [Total Nodes travelled = 3 (B, C, D)] [10 minutes]
+   ##### In above example, even if user started at Node A, but actual node he travelled is 3 (B, C, D).
+   ###### Hence,
+   ######  1. Path Travelled: A -> B -> C -> D
+   ######  2. Total Node in Path: 3
+   ######  3. Total travel time in minutes: 30
 
 # Business APIs / Curls:
 API to fetch path between source and destination:
@@ -165,7 +182,7 @@ curl -i -H "Accept: application/json" -H "Content-Type: application/json" -X GET
 ```
 ######Notes:
 1. sourceStationCode and destinationStationCode are mandatory. Sample StationCode - EW20
-2. Query param travel time is optional. If not provided API would calculate path for current time. 
+2. Query param travel time is optional. If not provided API would calculate path for current time.
 3. While specifying travelTime query param follow format as shown in example / curl.
 
 Example:
@@ -175,7 +192,7 @@ curl -i -H "Accept: application/json" -H "Content-Type: application/json" -X GET
 
 # Sample Response of Business API
 1. API could generate different response depending upon time for which path has been calculated.
-2. Success Response of API would look like, you could format response string to look like as shown in step 5 by replacing `\n` with new line in notepad.   
+2. Success Response of API would look like, you could format response string to look like as shown in step 5 by replacing `\n` with new line in notepad.
    ```
    {
     "success": true,
@@ -340,12 +357,67 @@ Take EW line from Raffles Place to City Hall [ TimeOfVisit: 2021-06-07T23:25, Tr
 Take EW line from City Hall to Bugis [ TimeOfVisit: 2021-06-07T23:35, Travelled stations so far: 10, JourneyTime in Minutes: 110 ]
 ```
 
-# Assumptions:
-1. StationList provided in excel would always have date in `d MMMM yyyy` format.
-2. Station code would be unique for each station for a line. If station is interchanging station, then it should have separate station code corresponding to each line. 
-3. If station is interchanging station, station name will still be same on all lines.
-4. In case we have multiple optimized path (with same complexity), we would return any one of the optimized path.
-5. Two station / node could only have one connecting line. 
+
+
+
+#Pending Work:
+
+### Performance enhancements:
+    1. Currently, getPaths is taking ~38 ms to response. It could be reduced to less then 10 ms.
+        1.1. PathSearchServiceImpl is calculating shortestPath via Time, Distance in serialized order. 
+             If we concurrently calculate it, it will improve our API response time by factor of half (i.e. less then 20ms)
+        1.2. We will replace PriorityQueue with Treeset for Dijkstra shortest path search. 
+             It will further improve our API response time by factor of half (i.e. from 20 ms to less then 12ms)
+        1.3. Response generation is taking 1 ms, should be optimized.
+### Technical enhancements:
+    1. Provide logback.xml with proper logging facilities.
+    2. Dockerize the application.
+    3. Migrate from CSV data source to actual data-source.
+    4. Move configuration to DB, so that config could be updated real time via Admin APIs.
+    5. Add performance tracing metrics.
+
+### Business enhancements:
+Update travel time calculation logic, based on station number. Missing station numbers should also be added to travel time.
+###### Current Implementation:
+```
+EW01 --> EW02 --> EW05 --> EW06
+```
+Considering all travel between station is 10 minutes.
+
+TravelTime from EW01 to EW06 = 30 minutes
+
+1. EW01 -> EW02 (10 minutes)
+2. EW02 -> EW05 (10 minutes)
+3. EW05 -> EW06 (10 minutes)
+
+###### New Implementation:
+```
+EW01 --> EW02 --> EW05 --> EW06
+```
+Considering all travel between station is 10 minutes.
+
+TravelTime from EW01 to EW06 = 50 minutes
+
+1. EW01 -> EW02 (10 minutes)
+
+
+2. EW02 -> EW05 (30 minutes)
+
+   (
+   Explanation:
+   EW02 --> EW03  10 minutes
+   EW03 --> EW04  10 Minutes
+   EW04 --> EW05  10 Minutes
+   )
+
+   Even if Station EW03, EW04 do not exist. They will come up in the future.
+
+
+3. EW05 -> EW06 (10 minutes)
+
+
+
+
 
 # How to start the application?
 ###Notes:
@@ -388,7 +460,7 @@ Take EW line from City Hall to Bugis [ TimeOfVisit: 2021-06-07T23:35, Travelled 
         2.3.2. You should see response as `{"success":true,"body":"healthCheck successful.","errors":null}`
 
 # How to run test?
-   Use command `mvn test` in terminal to run all test cases.
+Use command `mvn test` in terminal to run all test cases.
 
 # Trouble-shooting:
 
@@ -397,52 +469,3 @@ Take EW line from City Hall to Bugis [ TimeOfVisit: 2021-06-07T23:35, Travelled 
 
     Path to application file would be something like: 
     /Users/<YOUR_SYSTEM_PATH_HERE>/SubwayTransition/src/main/resources
-
-#Pending Work:
-### Performance enhancements:
-    1. Currently, getPaths is taking ~38 ms to response. It could be reduced to less then 10 ms.
-        1.1. PathSearchServiceImpl is calculating shortestPath via Time, Distance in serialized order. 
-             If we concurrently calculate it, it will improve our API response time by factor of half (i.e. less then 20ms)
-        1.2. We will replace PriorityQueue with Treeset for Dijkstra shortest path search. 
-             It will further improve our API response time by factor of half (i.e. from 20 ms to less then 12ms)
-        1.3. Response generation is taking 1 ms, should be optimized.
-### Technical enhancements:
-    1. Provide logback.xml with proper logging facilities.
-    2. Dockerize the application.
-    3. Migrate from CSV data source to actual data-source.
-    4. Move configuration to DB, so that config could be updated real time via Admin APIs.
-    5. Add performance tracing metrics.
-
-### Business enhancements:
-Update travel time calculation logic, based on station number. Missing station numbers should also be added to travel time.
-###### Current Implementation:
-```
-EW01 --> EW02 --> EW05 --> EW06
-```
-Considering all travel between station is 10 minutes.
-
-TravelTime from EW01 to EW06 = 30 minutes
-
-1. EW01 -> EW02 (10 minutes)
-2. EW02 -> EW05 (10 minutes)
-3. EW05 -> EW06 (10 minutes)
-
-###### New Implementation:
-```
-EW01 --> EW02 --> EW05 --> EW06
-```
-Considering all travel between station is 10 minutes.
-
-TravelTime from EW01 to EW06 = 50 minutes
-
-1. EW01 -> EW02 (10 minutes)
-
-
-2. EW02 -> EW05 (30 minutes)
-
-   (EW02 --10Min--> EW03 + EW03 --10Min--> EW04 + EW04 --10Min--> EW05)
-
-   Even if Station EW03, EW04 do not exist. They will come up in the future.
-
-
-3. EW05 -> EW06 (10 minutes)
