@@ -59,6 +59,7 @@ To account for these constraints, application will expose method that accepts a 
 4. In case we have multiple optimized path (with same complexity), we would return any one of the optimized path.
 5. Two station / node could only have one connecting line.
 6. Each Station Line would have its corresponding rules to calculate travel-time and stop-time in application.yml.
+7. Station Code should be alpha-numeric, with first two character as Capital alphabet, which should be the line code as well. Forst two characters could be followed by numbers.
 
 
 
